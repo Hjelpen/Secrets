@@ -1,0 +1,87 @@
+﻿@model ConfessionMaker2._0.Models.Post
+@{
+    ViewData["Title"] = "Post";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container">
+    <a href="@Url.Action("Index", "Home")">Back</a>
+    <div class="row">
+        <span class="float-right">posted by: &nbsp;<b>@Model.UserName -</b></span>
+        <span class="float-right">&nbsp; @Model.DateTime</span>
+    </div>
+    <div class="center-block">
+        <div class="card bg-light mb-3w-50">
+            <div class="card-header text-center">@Model.PostContent</div>
+            <div class="card-body">
+                <p class="card-text">@Model.PostContent</p>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <form asp-action="Comment" asp-controller="Home" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <label for="comment">Comment:</label>
+        <textarea class="form-control" rows="5" name="postComment" style="color: #FFF;" placeholder="What are your thoughts.." id="postComment"></textarea>
+        <input type="submit" value="Comment" class="btn btn-success float-right" />
+    </form>
+    <br />
+    <div class="container">
+        <div class="row">
+            <b>sort on: &nbsp; </b>
+            <a href="@Url.Action("SortComment", "Home", new { id = Model.Id})">Newest | &nbsp;</a>
+            <a href="@Url.Action("Post", "Home", new { id = Model.Id})">Most upvoted</a>
+        </div>
+        <hr />
+        @if (Model.Comments != null)
+        {
+            @foreach (var item in Model.Comments)
+            {
+                <p>@item.CommentContent</p>
+                <div>
+                    <b class="float-right">@item.DateTime</b>
+                    <div class="row">
+                        <a href="@Url.Action("UpvoteComment", "Home", new { postId = Model.Id, commentId = item.Id})">
+                            <i class="fas fa-arrow-up" id="Upvote"></i>
+                            @item.UpVotes
+                        </a>
+                        &nbsp;&nbsp; <a href="javascript:void(0)" id="reply" name="@item.Id">reply</a>
+                    </div>
+                </div>
+                if (item.CommentReplies != null)
+                {
+                    <a href="#" id="replies">show all @item.CommentReplies.Count replies..</a>
+
+                }
+                <hr />
+                <div class="replyForm" id="@item.Id">
+                    <form asp-action="Comment" asp-controller="Home" enctype="multipart/form-data">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <textarea class="form-control" rows="3" name="commentReply" placeholder="" id="commentReply"></textarea>
+                        <input type="submit" value="Submit" class="btn btn-success float-right" />
+                    </form>
+                </div>
+                <hr>
+            }
+        }
+    </div>
+</div>
+
+<script>
+      $(document).ready(function () {
+          $("#reply").click(function () {
+              var id = $(this).attr("name");
+              console.log(id)
+              $(".replyForm").show();
+        });
+    });
+</script>
+
+<style>
+    #postComment {
+        background-color: #444;
+    }
+
+    .replyForm {
+        display: none;
+    }
+</style>

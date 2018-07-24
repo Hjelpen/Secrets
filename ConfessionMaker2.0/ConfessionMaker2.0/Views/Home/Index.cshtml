@@ -1,0 +1,101 @@
+﻿@model IEnumerable<ConfessionMaker2._0.Models.Post>
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <div class="container">
+        <div id="startMessage">
+            <div class="text-center">
+                <h1>Want to tell a secret?</h1>
+                <button type="button" id="confessionButton" class="btn btn-success">Press here!</button>
+            </div>
+        </div>
+        <hr />
+            <form asp-action="Create" id="confession" class="text-center" enctype="multipart/form-data">
+                    <div class="form-group row">
+                        <label for="title">Title:</label>
+                        <input class="form-control" type="text" name="title" id="Title" required="required" />
+                        <label for="post">Secret:</label>
+                        <textarea class="form-control" rows="5" name="postContent" id="postContent" required="required"></textarea>
+                        <label for="userName">Username:</label>
+                        <input class="form-control" type="text" name="userName" id="userName" />
+                    </div>
+                    <input type="submit" value="Post" class="btn btn-success float-right" />
+                <br />
+                <br />
+            </form>
+        <div class="row">
+            <b>sort on:&nbsp;</b>
+            <a href="@Url.Action("Sort", "Home")">Newest&nbsp;</a> | &nbsp;
+            <a href="@Url.Action("Index", "Home")">Most upvoted</a>
+        </div>
+        <div>
+            <br />
+            @foreach (var item in Model)
+            {
+                <div class="center-block">
+                    <div class="card bg-light mb-3w-50">
+                        <div class="card-header text-center">@item.Title</div>
+                        <div class="card-body">
+                            <p class="card-text">@item.PostContent</p>
+                        </div>
+                    </div>
+                    @if (item.Comments != null)
+                    {
+                    <a href="@Url.Action("Post", "Home", new { id = item.Id })">@item.Comments.Count comments...&nbsp;</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Post", "Home", new { id = item.Id })">0 comments...</a>
+                    }
+                        <a href="@Url.Action("UpvotePost", "Home", new { id = item.Id })">
+                            <i class="fas fa-arrow-up" id="Upvote"></i>
+                            @item.UpVotes
+                        </a>
+                    <b class="float-right">@item.DateTime</b>
+                    <br />
+                    <br />
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        $("#confessionButton").click(function () {
+            $('#confession').removeClass('display: none');
+            $("#confession").toggle();
+        });
+    });
+
+</script>
+
+<style>
+    .row-fluid {
+        word-wrap: break-word;
+    }
+
+    #confession {
+        display: none;
+    }
+
+    #Title {
+        color: #FFF;
+        background-color: #444;
+    }
+
+    #postContent {
+        color: #FFF;
+        background-color: #444;
+    }
+
+    #userName {
+        color: #FFF;
+        background-color: #444;
+    }
+</style>
