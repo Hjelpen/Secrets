@@ -11,10 +11,16 @@ namespace ConfessionMaker2._0.Controllers
 {
     public class HomeController : Controller
     {
+        private BloggingContext _context;
+
+        public HomeController(BloggingContext context)
+        {
+            _context = context;
+        }
+
         public IActionResult Index()
         {
-            BloggingContext context = new BloggingContext();
-            var posts = context.Post.Include("Comments").ToList();
+            var posts = _context.Post.Include("Comments").ToList();
             var sortedList = posts.OrderByDescending(x => x.UpVotes);
 
             return View(sortedList);
@@ -22,7 +28,7 @@ namespace ConfessionMaker2._0.Controllers
 
         public IActionResult Create(Post info)
         {
-            using (var context = new BloggingContext())
+            using (_context)
             {
 
                 Post post = new Post();
@@ -40,8 +46,8 @@ namespace ConfessionMaker2._0.Controllers
                 post.Title = info.Title;
                 post.DateTime = DateTime.UtcNow;
 
-                context.Post.Add(post);
-                context.SaveChanges();
+                _context.Post.Add(post);
+                _context.SaveChanges();
 
             }
 
@@ -50,8 +56,7 @@ namespace ConfessionMaker2._0.Controllers
 
         public IActionResult Post(int id)
         {
-            BloggingContext context = new BloggingContext();
-            var postInfo = context.Post.Where(x => x.Id == id).Include("Comments");
+            var postInfo = _context.Post.Where(x => x.Id == id).Include("Comments");
 
             Post post = new Post();
             foreach (var item in postInfo)
@@ -72,49 +77,44 @@ namespace ConfessionMaker2._0.Controllers
 
         public IActionResult Comment(string postComment, int id)
         {
-
-            BloggingContext context = new BloggingContext();
-            Post post = context.Post.Find(id);
+            Post post = _context.Post.Find(id);
 
             Comment comment = new Comment();
             comment.DateTime = DateTime.UtcNow;
             comment.CommentContent = postComment;
             comment.PostId = id;
 
-            context.Comment.Add(comment);
-            context.SaveChanges();
+            _context.Comment.Add(comment);
+            _context.SaveChanges();
 
             return RedirectToAction("Post", "Home", new { id });
         }
 
         public IActionResult UpvotePost(int id)
         {
-            BloggingContext context = new BloggingContext();
-            Post post = context.Post.Find(id);
+            Post post = _context.Post.Find(id);
 
             post.UpVotes = post.UpVotes + 1;
-            context.Post.Update(post);
-            context.SaveChanges();
+            _context.Post.Update(post);
+            _context.SaveChanges();
             
             return RedirectToAction("Index");
         }
 
         public IActionResult UpVoteComment(int commentId, int postId)
         {
-            BloggingContext context = new BloggingContext();
-            Comment comment = context.Comment.Find(commentId);
+            Comment comment = _context.Comment.Find(commentId);
 
             comment.UpVotes = comment.UpVotes + 1;
-            context.Comment.Update(comment);
-            context.SaveChanges();
+            _context.Comment.Update(comment);
+            _context.SaveChanges();
 
             return RedirectToAction("Post", "Home", new { id = postId });
         }
 
         public IActionResult Sort()
         {
-            BloggingContext context = new BloggingContext();
-            var posts = context.Post.Include("Comments").ToList();
+            var posts = _context.Post.Include("Comments").ToList();
             var New = posts.OrderByDescending(x => x.DateTime);
 
             return View("Index", New);
@@ -122,8 +122,7 @@ namespace ConfessionMaker2._0.Controllers
 
         public IActionResult SortComment(int id)
         {
-            BloggingContext context = new BloggingContext();
-            var postInfo = context.Post.Where(x => x.Id == id).Include("Comments");
+            var postInfo = _context.Post.Where(x => x.Id == id).Include("Comments");
 
             Post post = new Post();
             foreach (var item in postInfo)
